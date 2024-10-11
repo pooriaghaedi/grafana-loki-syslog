@@ -1,0 +1,27 @@
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+  log_level: debug
+
+positions:
+  filename: /tmp/positions.yaml
+
+clients:
+  - url: http://loki:3100/loki/api/v1/push
+
+scrape_configs:
+  - job_name: syslog
+    syslog:
+      listen_address: 0.0.0.0:6514
+      label_structured_data: false # RFC3164 doesn't use structured data
+      labels:
+        job: "syslog"
+    relabel_configs:
+      - source_labels: ["__syslog_message_hostname"]
+        target_label: "host"
+      - source_labels: ["priority"]
+        target_label: "syslog_priority"
+      - source_labels: ["hostname"]
+        target_label: "syslog_host"
+      - source_labels: ["app"]
+        target_label: "syslog_app"
